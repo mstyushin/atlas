@@ -117,11 +117,12 @@ public class QuickStartV2 {
                                            PII_CLASSIFICATION, FACT_CLASSIFICATION, DIMENSION_CLASSIFICATION, LOGDATA_CLASSIFICATION };
 
     public static void main(String[] args) throws Exception {
-        String[] basicAuthUsernamePassword = null;
+        String[] basicAuthUsernamePassword = {"admin", "TaiPavzlq26p"};
 
-        if (!AuthenticationUtil.isKerberosAuthenticationEnabled()) {
-            basicAuthUsernamePassword = AuthenticationUtil.getBasicAuthenticationInput();
-        }
+//        this is a demo build so default credentials will be used
+//        if (!AuthenticationUtil.isKerberosAuthenticationEnabled()) {
+//            basicAuthUsernamePassword = AuthenticationUtil.getBasicAuthenticationInput();
+//        }
 
         runQuickstart(args, basicAuthUsernamePassword);
     }
@@ -267,30 +268,30 @@ public class QuickStartV2 {
         AtlasEntity storageDesc = createStorageDescriptor("hdfs://host:8000/apps/warehouse/sales", "TextInputFormat", "TextOutputFormat", true);
 
         // Column entities
-        List<AtlasEntity> salesFactColumns   = Arrays.asList(createColumn(TIME_ID_COLUMN, "int", "time id"),
-                                                                createColumn(PRODUCT_ID_COLUMN, "int", "product id"),
-                                                                createColumn(CUSTOMER_ID_COLUMN, "int", "customer id", PII_CLASSIFICATION),
-                                                                createColumn(SALES_COLUMN, "double", "product id", METRIC_CLASSIFICATION));
+        List<AtlasEntity> salesFactColumns   = Arrays.asList(createColumn(TIME_ID_COLUMN, "int", "Unix timestamp indicating when a particular sale was made"),
+                                                                createColumn(PRODUCT_ID_COLUMN, "int", "A number used to identify a particular product or stock keeping unit.This is the sku number that printed on the customer's receipt during this transaction."),
+                                                                createColumn(CUSTOMER_ID_COLUMN, "int", "Uniquely generated ID for identifying Customer that made a purchase.", PII_CLASSIFICATION),
+                                                                createColumn(SALES_COLUMN, "double", "The dollar amount of the transaction that was paid.", METRIC_CLASSIFICATION));
 
-        List<AtlasEntity> logFactColumns     = Arrays.asList(createColumn(TIME_ID_COLUMN, "int", "time id"),
-                                                                createColumn(APP_ID_COLUMN, "int", "app id"),
-                                                                createColumn(MACHINE_ID_COLUMN, "int", "machine id"),
-                                                                createColumn(LOG_COLUMN, "string", "log data", LOGDATA_CLASSIFICATION));
+        List<AtlasEntity> logFactColumns     = Arrays.asList(createColumn(TIME_ID_COLUMN, "int", "Unix timestamp indicating when a particular log message was emitted."),
+                                                                createColumn(APP_ID_COLUMN, "int", "ID of application which generated log message."),
+                                                                createColumn(MACHINE_ID_COLUMN, "int", "ID of particular VM where corresponding application is hosted."),
+                                                                createColumn(LOG_COLUMN, "string", "Log message", LOGDATA_CLASSIFICATION));
 
-        List<AtlasEntity> productDimColumns  = Arrays.asList(createColumn(PRODUCT_ID_COLUMN, "int", "product id"),
-                                                                createColumn(PRODUCT_NAME_COLUMN, "string", "product name"),
-                                                                createColumn(BRAND_NAME_COLUMN, "int", "brand name"));
+        List<AtlasEntity> productDimColumns  = Arrays.asList(createColumn(PRODUCT_ID_COLUMN, "int", "A number used to identify a particular product or stock keeping unit.This is the sku number that printed on the customer's receipt during this transaction."),
+                                                                createColumn(PRODUCT_NAME_COLUMN, "string", "Name of product as is from sales catalog."),
+                                                                createColumn(BRAND_NAME_COLUMN, "int", "Brand Name Code. Indicates if the brand is National, Private, or Exclusive."));
 
-        List<AtlasEntity> timeDimColumns     = Arrays.asList(createColumn(TIME_ID_COLUMN, "int", "time id"),
+        List<AtlasEntity> timeDimColumns     = Arrays.asList(createColumn(TIME_ID_COLUMN, "int", "Unix timestamp"),
                                                                 createColumn(DAY_OF_YEAR_COLUMN, "int", "day Of Year"),
                                                                 createColumn(WEEKDAY_COLUMN, "int", "week Day"));
 
-        List<AtlasEntity> customerDimColumns = Arrays.asList(createColumn(CUSTOMER_ID_COLUMN, "int", "customer id", PII_CLASSIFICATION),
-                                                                createColumn(NAME_COLUMN, "string", "customer name", PII_CLASSIFICATION),
-                                                                createColumn(ADDRESS_COLUMN, "string", "customer address", PII_CLASSIFICATION));
+        List<AtlasEntity> customerDimColumns = Arrays.asList(createColumn(CUSTOMER_ID_COLUMN, "int", "Uniquely generated ID for identifying Customer that made a purchase.", PII_CLASSIFICATION),
+                                                                createColumn(NAME_COLUMN, "string", "Customer name and surname.", PII_CLASSIFICATION),
+                                                                createColumn(ADDRESS_COLUMN, "string", "Ship-to address, including ZIP code.", PII_CLASSIFICATION));
 
         // Table entities
-        AtlasEntity salesFact          = createTable(SALES_FACT_TABLE, "sales fact table", salesDB, storageDesc,
+        AtlasEntity salesFact          = createTable(SALES_FACT_TABLE, "Sales fact table containing data ", salesDB, storageDesc,
                                                      "Joe", "Managed", salesFactColumns, FACT_CLASSIFICATION);
         AtlasEntity productDim         = createTable(PRODUCT_DIM_TABLE, "product dimension table", salesDB, storageDesc,
                                                      "John Doe", "Managed", productDimColumns, DIMENSION_CLASSIFICATION);
